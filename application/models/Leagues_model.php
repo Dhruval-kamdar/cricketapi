@@ -79,6 +79,33 @@ class Leagues_model extends My_model {
         }
        return $result;
     }
+    
+    public function cardCollection($postData){
+            $data['select'] = ['CM.*'];
+            $data['table'] = TABLE_USERS_CARD  ;
+            $data ["join"]=[ 
+                  TABLE_CARD_MASTER . ' as CM' => [
+                    TABLE_USERS_CARD.'.card_id = CM.id',
+                'LEFT',
+            ],];
+//                
+            $data['where'] = [TABLE_USERS_CARD.'.user_id' => $postData['userId']];
+            $leagues = $this->selectFromJoin($data);
+            if($leagues){
+            if(count($leagues) > 0){
+                 $result['success'] = true;
+                 $result['payload']['cards'] = $leagues;
+            }else{
+                $result['success'] = true;
+                 $result['payload']['cards'] = "No Data Found";
+            }}
+            else{
+                 $result['success'] = false;
+                    $result['errorMsg']= 'Something Goes to wrong';
+                    $result['errorCode']= 400;
+            }
+            return $result;
+    }
 }
 
 ?>

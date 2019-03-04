@@ -21,4 +21,10 @@ class LeaguesController extends CI_Controller {
                 exit();
         }
         
+        public function cardCollection(){
+            $response['result'] = $this->Leagues_model->cardCollection($this->input->post());
+            echo json_encode($response);
+            exit();
+        }
+        
 }

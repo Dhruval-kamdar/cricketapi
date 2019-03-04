@@ -87,3 +87,5 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 define("TABLE_LEAGUES", "leagues");
 define("TABLE_USERS", "users");
 define("TABLE_USERS_DEVICES", "user_devices");
+define("TABLE_USERS_CARD", "user_card");
+define("TABLE_CARD_MASTER", "card_master");
