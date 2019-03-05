@@ -53,5 +53,7 @@ $route['default_controller'] = 'welcome';
 $route['leagues/get-all-leagues'] = 'LeaguesController/getAllLeagues';
 $route['registration'] = 'LeaguesController/registration';
 $route['card-collection'] = 'LeaguesController/cardCollection';
+$route['team-update'] = 'LeaguesController/teamUpdate';
+$route['coin-packs'] = 'LeaguesController/coinPacks';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

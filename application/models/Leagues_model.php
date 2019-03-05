@@ -106,6 +106,25 @@ class Leagues_model extends My_model {
             }
             return $result;
     }
+    
+    public function teamUpdate($postData){
+        
+    }
+    
+    public function coinPacks($postData){
+        $data['select'] = [TABLE_PRODUCT.'.id as productId',TABLE_PRODUCT.'.productName as name',TABLE_PRODUCT.'.price',TABLE_PRODUCT.'.priceTag',];
+        $data['table'] = TABLE_PRODUCT;
+        $leagues = $this->selectRecords($data);
+        if(count($leagues) > 0){
+            $result['success'] = true;
+            $result['payload']['coinPacks']= $leagues;
+           
+        }else{
+            $result['success'] = true;
+            $result['payload']['coinPacks']= "No Product Available";
+        }
+        return $result;
+    }   
 }
 
 ?>

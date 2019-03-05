@@ -89,3 +89,6 @@ define("TABLE_USERS", "users");
 define("TABLE_USERS_DEVICES", "user_devices");
 define("TABLE_USERS_CARD", "user_card");
 define("TABLE_CARD_MASTER", "card_master");
+define("TABLE_PRODUCT", "product");
+define("TABLE_USER_TEAM", "user_team");
+define("TABLE_USER_BOWLING_ORDER", "user_bowling_order");

@@ -27,4 +27,16 @@ class LeaguesController extends CI_Controller {
             exit();
         }
         
-}
+        public function teamUpdate(){
+            $response['result'] = $this->Leagues_model->teamUpdate($this->input->post());
+            echo json_encode($response);
+            exit();
+        }
+        
+        public function coinPacks(){
+            $response['result'] = $this->Leagues_model->coinPacks($this->input->post());
+            echo json_encode($response);
+            exit();
+        }
+ }
+   
