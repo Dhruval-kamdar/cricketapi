@@ -38,5 +38,17 @@ class LeaguesController extends CI_Controller {
             echo json_encode($response);
             exit();
         }
+        
+        public function buyCoinPacks(){
+            $response['result'] = $this->Leagues_model->buyCoinPacks($this->input->post());
+            echo json_encode($response);
+            exit();
+        }
+        
+        public function cricketBagsConfig(){
+            $response['result'] = $this->Leagues_model->cricketBagsConfig($this->input->post());
+            echo json_encode($response);
+            exit();
+        }
  }
    

@@ -55,5 +55,7 @@ $route['registration'] = 'LeaguesController/registration';
 $route['card-collection'] = 'LeaguesController/cardCollection';
 $route['team-update'] = 'LeaguesController/teamUpdate';
 $route['coin-packs'] = 'LeaguesController/coinPacks';
+$route['buy-coin-packs'] = 'LeaguesController/buyCoinPacks';
+$route['cricket-bags-config'] = 'LeaguesController/cricketBagsConfig';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

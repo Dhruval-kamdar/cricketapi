@@ -108,23 +108,84 @@ class Leagues_model extends My_model {
     }
     
     public function teamUpdate($postData){
-        
+        print_r(($postData));
+        die();
     }
     
     public function coinPacks($postData){
-        $data['select'] = [TABLE_PRODUCT.'.id as productId',TABLE_PRODUCT.'.productName as name',TABLE_PRODUCT.'.price',TABLE_PRODUCT.'.priceTag',];
-        $data['table'] = TABLE_PRODUCT;
-        $leagues = $this->selectRecords($data);
-        if(count($leagues) > 0){
-            $result['success'] = true;
-            $result['payload']['coinPacks']= $leagues;
-           
+        if(!isset($postData['userId']) || !isset($postData['partnerName'])){
+            $result['success'] = false;
+            $result['errorMsg']= 'Provide Required Data';
+            $result['errorCode']= 400; 
         }else{
-            $result['success'] = true;
-            $result['payload']['coinPacks']= "No Product Available";
+            $data['select'] = [TABLE_PRODUCT.'.id as productId',TABLE_PRODUCT.'.productName as name',TABLE_PRODUCT.'.price',TABLE_PRODUCT.'.priceTag',];
+            $data['table'] = TABLE_PRODUCT;
+            $leagues = $this->selectRecords($data);
+            if(count($leagues) > 0){
+                $result['success'] = true;
+                $result['payload']['coinPacks']= $leagues;
+
+            }else{
+                $result['success'] = true;
+                $result['payload']['coinPacks']= "No Product Available";
+            }
         }
         return $result;
-    }   
+    } 
+    
+    public function buyCoinPacks($postData){
+        
+        if(!isset($postData['productId']) || !isset($postData['userId']) || !isset($postData['partnerName'])){
+            $result['success'] = false;
+            $result['errorMsg']= 'Provide Required Data';
+            $result['errorCode']= 400; 
+        }else{
+         $data['select'] = [TABLE_PRODUCT.'.price'];
+         $data['table'] = TABLE_PRODUCT;
+         $data['where'] = ['id' => $postData['productId']];
+         $leagues = $this->selectRecords($data);
+//         
+         if($leagues){
+            if(count($leagues) > 0){
+               $result['success'] = true;
+               $result['payload']['wallet']['coins']= $leagues[0];
+
+           }else{
+               $result['success'] = true;
+               $result['payload']['wallet']['coins']= "No Product Available";
+           }
+         }else{
+            $result['success'] = false;
+            $result['errorMsg']= 'Something Goes to wrong';
+            $result['errorCode']= 400;
+         }
+        }
+          return $result;
+        
+    }
+    
+    public function cricketBagsConfig($postData){
+        
+        if( !isset($postData['userId']) || !isset($postData['partnerName'])){
+            $result['success'] = false;
+            $result['errorMsg']= 'Provide Required Data';
+            $result['errorCode']= 400; 
+        }else{
+            $data['select'] = ['CBM.name','CBM.no_of_cards as noOfcards','CBM.price','CBM.common_percentage as commonPercentage','CBM.gold_percentage as goldPercentage'];
+            $data['table'] = TABLE_CRICKET_BAG_MASTER . ' as CBM';
+            $leagues = $this->selectRecords($data);
+            if($leagues){
+                if(count($leagues) >0){
+                    $result['success'] = true;
+                    $result['payload']['cricketBags'] = $leagues;
+                }else{
+                    $result['success'] = true;
+                    $result['payload']['cricketBags'] = "No Cricket Bag Found.";
+                }
+            }
+        }
+        return $result;
+    }
 }
 
 ?>

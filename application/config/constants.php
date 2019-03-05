@@ -92,3 +92,4 @@ define("TABLE_CARD_MASTER", "card_master");
 define("TABLE_PRODUCT", "product");
 define("TABLE_USER_TEAM", "user_team");
 define("TABLE_USER_BOWLING_ORDER", "user_bowling_order");
+define("TABLE_CRICKET_BAG_MASTER", "cricket_bag_master");
