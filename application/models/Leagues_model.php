@@ -34,9 +34,11 @@ class Leagues_model extends My_model {
                 $result['errorMsg']= 'Email Already Exist.';
                 $result['errorCode']= 400;
            }else{
+               $user_id = substr(str_shuffle(str_repeat("0123456789AGLOBMPRSCHGQTZDIUWEKVYFNX", 6)), 0, 6);
             $data['table']=TABLE_USERS;        
             $data ["insert"]=[
                 'name'=>$postData['name'],
+                'user_id'=>$user_id,
                 'email_Id'=>$postData['emailId'],
                 'user_Type'=>$postData['userType'],
                 'android_Id'=>$postData['androidID'],
@@ -45,7 +47,7 @@ class Leagues_model extends My_model {
                 'google_response_data'=>$postData['googleResponseData'],
                 'facebook_response_data'=>$postData['facebookResponseData'],
                 'device_Id'=>$postData['deviceId'],
-                'device_Ids'=>$postData['deviceIds'][0],
+                
                 'partner_Name'=>$postData['partnerName'],
             ];
             $res= $this->insertRecord($data);
@@ -63,7 +65,7 @@ class Leagues_model extends My_model {
                     }
                     $data=[
                         'name'=>$postData['name'],
-                        'userid'=>$res,
+                        'userid'=>$user_id,
                         'email'=>$postData['emailId'],
                         'userType'=>$postData['userType'],
                     ];
@@ -81,30 +83,62 @@ class Leagues_model extends My_model {
     }
     
     public function cardCollection($postData){
-            $data['select'] = ['CM.*'];
-            $data['table'] = TABLE_USERS_CARD  ;
-            $data ["join"]=[ 
-                  TABLE_CARD_MASTER . ' as CM' => [
-                    TABLE_USERS_CARD.'.card_id = CM.id',
-                'LEFT',
-            ],];
-//                
-            $data['where'] = [TABLE_USERS_CARD.'.user_id' => $postData['userId']];
-            $leagues = $this->selectFromJoin($data);
-            if($leagues){
-            if(count($leagues) > 0){
-                 $result['success'] = true;
-                 $result['payload']['cards'] = $leagues;
-            }else{
-                $result['success'] = true;
-                 $result['payload']['cards'] = "No Data Found";
-            }}
-            else{
-                 $result['success'] = false;
-                    $result['errorMsg']= 'Something Goes to wrong';
-                    $result['errorCode']= 400;
+        if(!isset($postData['partnerName']) ||  $postData['partnerName'] == NULL || !isset($postData['userId']) || $postData['userId'] == NULL){
+                $result['success'] = false;
+                $result['errorMsg']= 'Provide Required Data';
+                $result['errorCode']= 400;
+       }else{
+           $data['select']=['*'];
+           $data['table'] = TABLE_CARD_MASTER  ;
+           $cardMasterId = $this->selectRecords($data);
+           for($i=0 ; $i <count($cardMasterId) ; $i++){
+              
+               $data['table'] = TABLE_USERS_CARD  ;
+               $data ["where"]=['user_id'=>$postData['userId'],'card_id'=>$cardMasterId[$i]->id]; 
+               $count= $this->countRecords($data);
+               if($count == 0){
+                   $data['table'] = TABLE_USERS_CARD ;
+                   $data ["insert"]=[
+                       'user_id'=>$postData['userId'],
+                       'card_id'=>$cardMasterId[$i]->id,
+                       'keyname'=>$cardMasterId[$i]->keyname,
+                       'level'=>$cardMasterId[$i]->level,
+                       'cardType'=>$cardMasterId[$i]->cardType,
+                       'upgradeClass'=>$cardMasterId[$i]->upgradeClass,
+                       'battingAccuracy'=>$cardMasterId[$i]->battingAccuracy,
+                       'bowlingAccuracy'=>$cardMasterId[$i]->bowlingAccuracy,
+                       'minPower'=>$cardMasterId[$i]->minPower,
+                       'maxPower'=>$cardMasterId[$i]->maxPower,
+                       'minBowlingSpeed'=>$cardMasterId[$i]->minBowlingSpeed,
+                       'maxBowlingSpeed'=>$cardMasterId[$i]->maxBowlingSpeed,
+                       'minTurn'=>$cardMasterId[$i]->minTurn,
+                       'maxTurn'=>$cardMasterId[$i]->maxTurn,
+                       'skillPoints'=>$cardMasterId[$i]->skillPoints,
+                    ];
+                   $res=$this->insertRecord($data);
+               }
+           }
+           
+           $data['select']=['keyname','level','cardType','upgradeClass','battingAccuracy','bowlingAccuracy','minPower','maxPower','minBowlingSpeed','maxBowlingSpeed','minTurn','maxTurn','skillPoints'];
+           $data['table'] = TABLE_USERS_CARD;
+           $data ["where"]=['user_id'=>$postData['userId']];
+           $Usercard = $this->selectRecords($data);
+           
+           for($i=0 ; $i <count($Usercard) ; $i++){
+                // $Usercard[$i]->level
+                 $Usercard[$i]->battingAccuracy=array_slice(explode(',',$Usercard[$i]->battingAccuracy),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->bowlingAccuracy=array_slice(explode(',',$Usercard[$i]->bowlingAccuracy),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->minPower=array_slice(explode(',',$Usercard[$i]->minPower),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->maxPower=array_slice(explode(',',$Usercard[$i]->maxPower),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->minBowlingSpeed=array_slice(explode(',',$Usercard[$i]->minBowlingSpeed),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->maxBowlingSpeed=array_slice(explode(',',$Usercard[$i]->maxBowlingSpeed),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->minTurn=array_slice(explode(',',$Usercard[$i]->minTurn),(($Usercard[$i]->level)-1),2);
+                 $Usercard[$i]->maxTurn=array_slice(explode(',',$Usercard[$i]->maxTurn),(($Usercard[$i]->level)-1),2);
             }
-            return $result;
+       }
+         $result['success'] = true;
+         $result['payload']['cards']= $Usercard;
+        return $result;
     }
     
     public function teamUpdate($postData){
