@@ -8,12 +8,7 @@ class LeaguesController extends CI_Controller {
             $this->load->model('Leagues_model', 'Leagues_model');
             
         }
-	public function getAllLeagues()
-	{
-		$loginCheck['result'] = $this->Leagues_model->getAllLeagues($this->input->post());
-                echo json_encode($loginCheck);
-                exit();
-	}
+	
         
         public function registration(){
                 $response['result'] = $this->Leagues_model->registration($this->input->post());
@@ -26,29 +21,20 @@ class LeaguesController extends CI_Controller {
             echo json_encode($response);
             exit();
         }
+            
+        public function getAllLeagues()
+	{
+		$loginCheck['result'] = $this->Leagues_model->getAllLeagues($this->input->post());
+                echo json_encode($loginCheck);
+                exit();
+	}
         
         public function teamUpdate(){
-            $response['result'] = $this->Leagues_model->teamUpdate($this->input->post());
-            echo json_encode($response);
+            $body = file_get_contents('php://input');
+            $loginCheck['result'] = $this->Leagues_model->teamUpdate($body);
+            echo json_encode($loginCheck);
             exit();
         }
         
-        public function coinPacks(){
-            $response['result'] = $this->Leagues_model->coinPacks($this->input->post());
-            echo json_encode($response);
-            exit();
-        }
-        
-        public function buyCoinPacks(){
-            $response['result'] = $this->Leagues_model->buyCoinPacks($this->input->post());
-            echo json_encode($response);
-            exit();
-        }
-        
-        public function cricketBagsConfig(){
-            $response['result'] = $this->Leagues_model->cricketBagsConfig($this->input->post());
-            echo json_encode($response);
-            exit();
-        }
  }
    

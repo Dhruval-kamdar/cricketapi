@@ -6,19 +6,7 @@ class Leagues_model extends My_model {
         parent::__construct();
     }
 
-    public function getAllLeagues($postData){
-            $data['select'] = ['leagues.*'];
-            $data['table'] = TABLE_LEAGUES . ' as leagues';
-            $data['where'] = ['name !=' => ''];
-            $leagues = $this->selectRecords($data);
-            
-            if(!empty($leagues)){
-                $result['success'] = true;
-                $result['responseData']['leagueInfo']['leagues'] = $leagues;
-                $result['responseData']['leagueInfo']['curentLeagueName'] = 'City League';
-            }
-            return $result;
-    }
+    
     
     public function registration($postData){
        if(!isset($postData['name']) ||  $postData['name'] == NULL || !isset($postData['emailId']) || $postData['emailId'] == NULL || !isset($postData['userType']) || $postData['userType'] == NULL || $postData['partnerName'] == NULL){
@@ -141,84 +129,116 @@ class Leagues_model extends My_model {
         return $result;
     }
     
-    public function teamUpdate($postData){
-        print_r(($postData));
-        die();
-    }
-    
-    public function coinPacks($postData){
-        if(!isset($postData['userId']) || !isset($postData['partnerName'])){
+    public function getAllLeagues($postData){
+        if(!isset($postData['partnerName']) ||  $postData['partnerName'] == NULL || !isset($postData['userId']) || $postData['userId'] == NULL){
             $result['success'] = false;
             $result['errorMsg']= 'Provide Required Data';
-            $result['errorCode']= 400; 
-        }else{
-            $data['select'] = [TABLE_PRODUCT.'.id as productId',TABLE_PRODUCT.'.productName as name',TABLE_PRODUCT.'.price',TABLE_PRODUCT.'.priceTag',];
-            $data['table'] = TABLE_PRODUCT;
-            $leagues = $this->selectRecords($data);
-            if(count($leagues) > 0){
-                $result['success'] = true;
-                $result['payload']['coinPacks']= $leagues;
-
-            }else{
-                $result['success'] = true;
-                $result['payload']['coinPacks']= "No Product Available";
-            }
-        }
-        return $result;
-    } 
-    
-    public function buyCoinPacks($postData){
-        
-        if(!isset($postData['productId']) || !isset($postData['userId']) || !isset($postData['partnerName'])){
-            $result['success'] = false;
-            $result['errorMsg']= 'Provide Required Data';
-            $result['errorCode']= 400; 
-        }else{
-         $data['select'] = [TABLE_PRODUCT.'.price'];
-         $data['table'] = TABLE_PRODUCT;
-         $data['where'] = ['id' => $postData['productId']];
-         $leagues = $this->selectRecords($data);
-//         
-         if($leagues){
-            if(count($leagues) > 0){
-               $result['success'] = true;
-               $result['payload']['wallet']['coins']= $leagues[0];
-
-           }else{
-               $result['success'] = true;
-               $result['payload']['wallet']['coins']= "No Product Available";
-           }
-         }else{
-            $result['success'] = false;
-            $result['errorMsg']= 'Something Goes to wrong';
             $result['errorCode']= 400;
-         }
-        }
-          return $result;
+       }else{
+            $data['table']=TABLE_USER_LEAGUES;
+            $data['where']=['user_id'=>$postData['userId']];
+            $resCount= $this->countRecords($data);
+            if($resCount == 0){
+                $data=[];
+                $data['select']=['id'];
+                $data['table']=TABLE_LEAGUES_MASTER;
+                $result= $this->selectRecords($data);
+                
+                for($i = 0; $i <count($result);$i++){
+                    $data['table']=TABLE_USER_LEAGUES;
+                    if($i == 0){
+                        $data ["insert"]=[
+                            'user_id'=>$postData['userId'],
+                            'leagues_id'=>$result[$i]->id,
+                            'is_unblocked'=>'true'
+                        ];
+                    }else{
+                        $data ["insert"]=[
+                            'user_id'=>$postData['userId'],
+                            'leagues_id'=>$result[$i]->id,
+                            'is_unblocked'=>'false'
+                        ];
+                    }
+                    $insertRecord= $this->insertRecord($data);
+                    }
+                }
+                $data['select']=['LM.name','LM.promoteAt','LM.demoteAt','LM.coinsPerMatch','LM.cardsToBeUnlocked','LM.starsLose','LM.starsLose','LM.starsWin','LM.starsTie','LM.energyToBeDeducted','UL.is_unblocked as isUnlocked'];
+                $data['join'] = [
+                    TABLE_LEAGUES_MASTER . ' as LM' => [
+                        'LM.id = UL.leagues_id',
+                        'LEFT',
+                    ],
+                ];
+                $data['table']=TABLE_USER_LEAGUES.' as UL';
+                $data['where']=['user_id'=>$postData['userId']];
+                $resultRecord= $this->selectFromJoin($data);
+                
+                $result['success'] = true;
+                $result['payload']['leagueInfo']['leagues']= $resultRecord;
+                return $result;
+            }
+       }
+       
+    public function teamUpdate($postData){
+        $object = json_decode($postData);
+        $user_id=$object->userId;
         
-    }
-    
-    public function cricketBagsConfig($postData){
+        $requestData=$object->requestData;
+        $strategyData=$requestData->strategy;
         
-        if( !isset($postData['userId']) || !isset($postData['partnerName'])){
+        $team=$strategyData->team;
+        
+        $bowlingOrder=$strategyData->bowlingOrder;
+        if(!isset($team) ||  $team == NULL || !isset($bowlingOrder) || $bowlingOrder == NULL){
             $result['success'] = false;
             $result['errorMsg']= 'Provide Required Data';
-            $result['errorCode']= 400; 
+            $result['errorCode']= 400;
         }else{
-            $data['select'] = ['CBM.name','CBM.no_of_cards as noOfcards','CBM.price','CBM.common_percentage as commonPercentage','CBM.gold_percentage as goldPercentage'];
-            $data['table'] = TABLE_CRICKET_BAG_MASTER . ' as CBM';
-            $leagues = $this->selectRecords($data);
-            if($leagues){
-                if(count($leagues) >0){
-                    $result['success'] = true;
-                    $result['payload']['cricketBags'] = $leagues;
-                }else{
-                    $result['success'] = true;
-                    $result['payload']['cricketBags'] = "No Cricket Bag Found.";
-                }
+            $data=[];
+            $data['table']=TABLE_USER_TEAM;
+            $data['where']=['user_id'=>$user_id];
+            $count= $this->countRecords($data);
+            if($count == 0 ){
+                    for($i = 0; $i <count($team) ;$i++  ){
+                        $data['table']=TABLE_USER_TEAM;
+                        $data['insert']=['user_id'=>$user_id,'player_Name'=>$team[$i]];
+                        $res= $this->insertRecord($data);
+                    }
+
+                    for($i = 0; $i <count($bowlingOrder) ;$i++  ){
+                        $data['table']=TABLE_USER_BOWLING_ORDER;
+                        $data['insert']=['user_id'=>$user_id,'player_Name'=>$bowlingOrder[$i]];
+                        $res= $this->insertRecord($data);
+                    }
+            }else{
+                $data=[];
+                $data['table']=TABLE_USER_TEAM;
+                $data['where']=['user_id'=>$user_id];
+                $delete= $this->deleteRecords($data);
+
+                $data=[];
+                $data['table']=TABLE_USER_BOWLING_ORDER;
+                $data['where']=['user_id'=>$user_id];
+                $delete= $this->deleteRecords($data);
+
+                for($i = 0; $i <count($team) ;$i++  ){
+                        $data['table']=TABLE_USER_TEAM;
+                        $data['insert']=['user_id'=>$user_id,'player_Name'=>$team[$i]];
+                        $res= $this->insertRecord($data);
+                    }
+
+                    for($i = 0; $i <count($bowlingOrder) ;$i++  ){
+                        $data['table']=TABLE_USER_BOWLING_ORDER;
+                        $data['insert']=['user_id'=>$user_id,'player_Name'=>$bowlingOrder[$i]];
+                        $res= $this->insertRecord($data);
+                    }
             }
+        
+            $result['success'] = true;
+            $result['payload']['strategy']['bowlingOrder']= $bowlingOrder;
+            $result['payload']['strategy']['team']= $team;
+            return $result;
         }
-        return $result;
     }
 }
 

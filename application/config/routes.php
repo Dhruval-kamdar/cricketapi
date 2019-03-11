@@ -50,12 +50,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 $route['default_controller'] = 'welcome';
-$route['leagues/get-all-leagues'] = 'LeaguesController/getAllLeagues';
+
 $route['registration'] = 'LeaguesController/registration';
 $route['card-collection'] = 'LeaguesController/cardCollection';
+$route['get-all-leagues'] = 'LeaguesController/getAllLeagues';
 $route['team-update'] = 'LeaguesController/teamUpdate';
-$route['coin-packs'] = 'LeaguesController/coinPacks';
-$route['buy-coin-packs'] = 'LeaguesController/buyCoinPacks';
-$route['cricket-bags-config'] = 'LeaguesController/cricketBagsConfig';
+
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
