@@ -9,61 +9,64 @@ class Leagues_model extends My_model {
     
     
     public function registration($postData){
-       if(!isset($postData['name']) ||  $postData['name'] == NULL || !isset($postData['emailId']) || $postData['emailId'] == NULL || !isset($postData['userType']) || $postData['userType'] == NULL || $postData['partnerName'] == NULL){
-                $result['success'] = false;
-                $result['errorMsg']= 'Provide Required Data';
-                $result['errorCode']= 400;
-       }else{
+        $object = json_decode($postData['requestData']);
+        
+       if(!isset($object->name) ||  $object->name == NULL || !isset($object->emailId) || $object->emailId == NULL || !isset($object->userType) || $object->userType == NULL || $postData['partnerName'] == NULL){
+                $result['PvPResult']['success'] = false;
+                $result['PvPResult']['errorMsg']= 'Provide Required Data';
+                $result['PvPResult']['errorCode']= 400;
+       }
+       else{
            $data['table']=TABLE_USERS;
-           $data ["where"]=['email_Id'=>$postData['emailId']];           
+           $data ["where"]=['email_Id'=>$object->emailId];           
            $count= $this->countRecords($data);
            if($count > 0){
-                $result['success'] = false;
-                $result['errorMsg']= 'Email Already Exist.';
-                $result['errorCode']= 400;
+                $result['PvPResult']['success'] = false;
+                $result['PvPResult']['errorMsg']= 'Email Already Exist.';
+                $result['PvPResult']['errorCode']= 400;
            }else{
                $user_id = substr(str_shuffle(str_repeat("0123456789AGLOBMPRSCHGQTZDIUWEKVYFNX", 6)), 0, 6);
             $data['table']=TABLE_USERS;        
             $data ["insert"]=[
-                'name'=>$postData['name'],
+                'name'=>$object->name,
                 'user_id'=>$user_id,
-                'email_Id'=>$postData['emailId'],
-                'user_Type'=>$postData['userType'],
-                'android_Id'=>$postData['androidID'],
-                'google_Id'=>$postData['googleId'],
-                'facebook_Id'=>$postData['facebookId'],
-                'google_response_data'=>$postData['googleResponseData'],
-                'facebook_response_data'=>$postData['facebookResponseData'],
-                'device_Id'=>$postData['deviceId'],
-                
+                'email_Id'=>$object->emailId,
+                'user_Type'=>$object->userType,
+                'android_Id'=>$object->androidID,
+                'google_Id'=>$object->googleId,
+                'facebook_Id'=>$object->facebookId,
+                'google_response_data'=>$object->googleResponseData,
+                'facebook_response_data'=>$object->facebookResponseData,
+                'device_Id'=>$object->deviceId,
                 'partner_Name'=>$postData['partnerName'],
             ];
             $res= $this->insertRecord($data);
                 if(!empty($res)){
                     $data['table']=TABLE_USERS_DEVICES;    
-                    $data ["where"]=['user_Device_Id'=>$postData['deviceId']];           
+                    $data ["where"]=['user_Device_Id'=>$object->deviceId,];           
                     $count= $this->countRecords($data);
                     if($count == 0){
                         $data['table']=TABLE_USERS_DEVICES; 
                         $data ["insert"]=[
-                            'user_Device_Id'=>$postData['deviceId'],
+                            'user_Device_Id'=>$object->deviceId,
                             'user_Id'=>$res,
                             ];
                         $res_user_devices= $this->insertRecord($data);
                     }
                     $data=[
-                        'name'=>$postData['name'],
+                        'name'=>$object->name,
                         'userid'=>$user_id,
-                        'email'=>$postData['emailId'],
-                        'userType'=>$postData['userType'],
+                        'email'=>$object->emailId,
+                        'userType'=>$object->emailId,
+                        'teamSkillPoints'=>'0',
                     ];
-                    $result['success'] = true;
-                    $result['payload']['userProfile'] = $data;
+                    $result['PvPResult']['success'] = true;
+                    $result['PvPResult']['userProfile'] = $data;
 
                 }else{
-                    $result['success'] = false;
-                    $result['errorMsg']= 'Something Goes to wrong';
-                    $result['errorCode']= 400;
+                    $result['PvPResult']['success'] = false;
+                    $result['PvPResult']['errorMsg']= 'Something Goes to wrong';
+                    $result['PvPResult']['errorCode']= 400;
                 }            
            }
         }
@@ -181,6 +184,7 @@ class Leagues_model extends My_model {
        
     public function teamUpdate($postData){
         $object = json_decode($postData);
+       
         $user_id=$object->userId;
         
         $requestData=$object->requestData;

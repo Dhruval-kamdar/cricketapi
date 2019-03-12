@@ -11,6 +11,7 @@ class LeaguesController extends CI_Controller {
 	
         
         public function registration(){
+                
                 $response['result'] = $this->Leagues_model->registration($this->input->post());
                 echo json_encode($response);
                 exit();
