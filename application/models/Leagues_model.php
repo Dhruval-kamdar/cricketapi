@@ -12,18 +12,18 @@ class Leagues_model extends My_model {
         $object = json_decode($postData['requestData']);
         
        if(!isset($object->name) ||  $object->name == NULL || !isset($object->emailId) || $object->emailId == NULL || !isset($object->userType) || $object->userType == NULL || $postData['partnerName'] == NULL){
-                $result['PvPResult']['success'] = false;
-                $result['PvPResult']['errorMsg']= 'Provide Required Data';
-                $result['PvPResult']['errorCode']= 400;
+                $result['success'] = false;
+                $result['errorMsg']= 'Provide Required Data';
+                $result['errorCode']= 400;
        }
        else{
            $data['table']=TABLE_USERS;
            $data ["where"]=['email_Id'=>$object->emailId];           
            $count= $this->countRecords($data);
            if($count > 0){
-                $result['PvPResult']['success'] = false;
-                $result['PvPResult']['errorMsg']= 'Email Already Exist.';
-                $result['PvPResult']['errorCode']= 400;
+                $result['success'] = false;
+                $result['errorMsg']= 'Email Already Exist.';
+                $result['errorCode']= 400;
            }else{
                $user_id = substr(str_shuffle(str_repeat("0123456789AGLOBMPRSCHGQTZDIUWEKVYFNX", 6)), 0, 6);
             $data['table']=TABLE_USERS;        
@@ -35,7 +35,7 @@ class Leagues_model extends My_model {
                 'android_Id'=>$object->androidID,
                 'google_Id'=>$object->googleId,
                 'facebook_Id'=>$object->facebookId,
-                'google_response_data'=>$object->googleResponseData,
+               'google_response_data'=>$object->googleResponseData,
                 'facebook_response_data'=>$object->facebookResponseData,
                 'device_Id'=>$object->deviceId,
                 'partner_Name'=>$postData['partnerName'],
@@ -54,19 +54,23 @@ class Leagues_model extends My_model {
                         $res_user_devices= $this->insertRecord($data);
                     }
                     $data=[
+                         
                         'name'=>$object->name,
                         'userid'=>$user_id,
                         'email'=>$object->emailId,
                         'userType'=>$object->emailId,
-                        'teamSkillPoints'=>'0',
+                        'teamSkillPoints'=>0,
+                        "userType"=>$object->userType,
+                        "faceBookId"=> $object->facebookId,
+//                        "xpPoints"=>10,
                     ];
-                    $result['PvPResult']['success'] = true;
-                    $result['PvPResult']['userProfile'] = $data;
+                    $result['success'] = true;
+                    $result['payload']['userProfile'] = $data;
 
                 }else{
-                    $result['PvPResult']['success'] = false;
-                    $result['PvPResult']['errorMsg']= 'Something Goes to wrong';
-                    $result['PvPResult']['errorCode']= 400;
+                    $result['success'] = false;
+                    $result['errorMsg']= 'Something Goes to wrong';
+                    $result['errorCode']= 400;
                 }            
            }
         }
@@ -165,7 +169,7 @@ class Leagues_model extends My_model {
                     $insertRecord= $this->insertRecord($data);
                     }
                 }
-                $data['select']=['LM.name','LM.promoteAt','LM.demoteAt','LM.coinsPerMatch','LM.cardsToBeUnlocked','LM.starsLose','LM.starsLose','LM.starsWin','LM.starsTie','LM.energyToBeDeducted','UL.is_unblocked as isUnlocked'];
+                $data['select']=['LM.name','LM.reward','LM.promoteAt','LM.demoteAt','LM.coinsPerMatch','LM.cardsToBeUnlocked','LM.starsLose','LM.starsLose','LM.starsWin','LM.starsTie','LM.energyToBeDeducted','UL.is_unblocked as isUnlocked'];
                 $data['join'] = [
                     TABLE_LEAGUES_MASTER . ' as LM' => [
                         'LM.id = UL.leagues_id',
